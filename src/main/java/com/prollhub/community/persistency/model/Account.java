@@ -33,7 +33,7 @@ public class Account implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column()
+    @Column(unique = true, nullable = true)
     private String did;
 
     // Inheritance from Spring Security

@@ -1,0 +1,190 @@
+package com.prollhub.community.controller.api;
+
+import com.prollhub.community.dto.SuccessResponse;
+import com.prollhub.community.dto.WarningResponse;
+import com.prollhub.community.dto.auth.LoginRequest;
+import com.prollhub.community.dto.auth.RegisterRequest;
+import com.prollhub.community.dto.auth.UserInfoDTO;
+import com.prollhub.community.exception.DuplicateEmailException;
+import com.prollhub.community.exception.DuplicateUsernameException;
+import com.prollhub.community.exception.ErrorCode;
+import com.prollhub.community.exception.ErrorResponse;
+import com.prollhub.community.logic.service.AccountService;
+import com.prollhub.community.persistency.model.Account;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+
+    private final AuthenticationManager authenticationManager;
+    private final AccountService accountService;
+
+    /**
+     * Handles user login reuqests via REST API.
+     * @param loginRequest the loginRequest containing username and password
+     * @return the expected loginResponse entity
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        log.info("Attempted login for user {}.", loginRequest.getUsername());
+
+        ErrorCode code;
+        ErrorResponse err;
+
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+            );
+
+            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Object principal = authentication.getPrincipal();
+
+            if (!(principal instanceof Account authenticatedAccount)) {
+                log.error("Authentication principal is not an instance of Account: {}", principal.getClass());
+                code = ErrorCode.INTERNAL_SERVER_ERROR;
+                return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
+            }
+
+            log.info("User {} logged in successfully.", authenticatedAccount.getUsername());
+            UserInfoDTO userInfoDTO = new UserInfoDTO(authenticatedAccount);
+
+            SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(userInfoDTO);
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
+            // Handle incorrect username/password specifically
+            log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getUsername());
+            code = ErrorCode.BAD_CREDENTIALS;
+
+        } catch (AuthenticationException e) {
+            // Handle other authentication errors (e.g., account locked, disabled)
+            log.error("Authentication failed for user '{}': {}", loginRequest.getUsername(), e.getMessage());
+            code = ErrorCode.LOCKED;
+        } catch (Exception e) {
+            // Catch unexpected errors
+            log.error("An unexpected error occurred during login for user '{}': {}", loginRequest.getUsername(), e.getMessage(), e);
+            code = ErrorCode.INTERNAL_SERVER_ERROR;
+        }
+
+        err = new ErrorResponse(code);
+        return ResponseEntity.status(code.getHttpStatus()).body(err);
+    }
+
+    /**
+     * Handles user registration requests.
+     * @param request DTO containing user details for registration.
+     * @return ResponseEntity indicating success or failure.
+     */
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+        log.info("Received registration request for username: {}", request.getUsername());
+        ErrorCode code;
+
+        try {
+
+            Account registeredAccount = accountService.registerNewAccount(request);
+
+            SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(HttpStatus.CREATED, new UserInfoDTO(registeredAccount));
+
+
+            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! Username: " + registeredAccount.getUsername());
+        } catch (DuplicateUsernameException e) {
+            log.warn("Registration failed for duplicated username {}", request.getUsername());
+            code = ErrorCode.USERNAME_TAKEN;
+
+        } catch (DuplicateEmailException e) {
+            log.warn("Registration failed for duplicated email {}", request.getEmail());
+            code = ErrorCode.EMAIL_TAKEN;
+
+        } catch (Exception e) {
+            // Catch unexpected errors during registration
+            log.error("Unexpected error during registration for {}: {}", request.getUsername(), e.getMessage(), e);
+            code = ErrorCode.INTERNAL_SERVER_ERROR;
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(code);
+        return ResponseEntity.status(code.getHttpStatus()).body(errorResponse);
+    }
+
+    /**
+     * Handles user logout requests. Requires user to be authenticated.
+     * Invalidates the current session.
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @return ResponseEntity indicating logout success.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        // Get the current authentication context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+            log.info("User '{}' logged out successfully.", authentication.getName());
+        } else {
+            log.warn("Logout attempt received, but no user was authenticated.");
+        }
+        return ResponseEntity.ok("User logged out successfully!");
+    }
+
+    /**
+     * Retrieves details of the currently authenticated user. Requires authentication.
+     * @return ResponseEntity containing user details or an error if not authenticated.
+     */
+    @GetMapping("/self")
+    public ResponseEntity<?> getCurrentUser() {
+        // Get authentication object from the security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Check if user is authenticated and not anonymous
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            log.warn("Attempt to access /self endpoint without authentication.");
+            WarningResponse<UserInfoDTO> warningResponse = new WarningResponse<>(HttpStatus.OK, "AUTHENTICATION_FAILED", "No authenticated user found", null);
+            return ResponseEntity.ok(warningResponse);
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof Account currentAccount)) {
+            log.error("/me endpoint principal is not an instance of Account: {}", principal.getClass());
+            ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+            ErrorResponse errorResponse = new ErrorResponse(errorCode, "Unexpected user details type.");
+            return ResponseEntity.status(errorCode.getHttpStatus()).body(errorResponse);
+        }
+        log.info("Fetching details for currently authenticated user: {}", currentAccount.getUsername());
+
+        // --- Change: Create UserInfoDTO from the current Account ---
+        UserInfoDTO userInfoDTO = new UserInfoDTO(currentAccount);
+        // ----------------------------------------------------------
+
+        // --- Change: Use SuccessResponse with UserInfoDTO ---
+        SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(
+                HttpStatus.OK,
+                userInfoDTO
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+}
