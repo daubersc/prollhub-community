@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --neon_red: #ff082e;
+    --neon_red_transparent: rgba(255, 8, 46, 0.1);
+    --neon_red_secondary: #fdf800;
+    --red_gradient: linear-gradient(45deg, var(--neon_red), var(--neon_red_secondary), var(--neon_red));
+    --wk_red_gradient: -webkit-linear-gradient(var(--neon_red), var(--neon_red_secondary));
+
+    --neon_orange: #ff8600;
+    --neon_orange_transparent: rgba(255, 134, 0, 0.1);
+    --neon_orange_secondary: #f3f400;
+    --orange_gradient: linear-gradient(45deg, var(--neon_orange), var(--neon_orange_secondary));
+    --wk_orange_gradient: -webkit-linear-gradient(var(--neon_orange), var(--neon_orange_secondary));
+
+
+    --neon_yellow: #fdf800;
+    --neon_yellow_transparent: rgba(253, 248, 0, 0.1);
+    --neon_yellow_secondary: #ffd701;
+    --yellow_gradient: linear-gradient(45deg, var(--neon_yellow), var(--neon_yellow_secondary));
+    --wk_yellow_gradient: -webkit-linear-gradient(var(--neon_yellow), var(--neon_yellow_secondary));
+
+
+    --neon_green: #00df00;
+    --neon_green_transparent: rgba(0, 223, 0, 0.1);
+    --neon_green_secondary: #aefe00;
+    --green_gradient: linear-gradient(45deg, var(--neon_green), var(--neon_green_secondary));
+    --wk_green_gradient: -webkit-linear-gradient(var(--neon_green), var(--neon_green_secondary));
+
+
+    --neon_purple: #9917cc;
+    --neon_purple_secondary: #ff01ff;
+    --purple_gradient: linear-gradient(45deg, var(--neon_purple), var(--neon_purple_secondary));
+    --wk_purple_gradient: -webkit-linear-gradient(var(--neon_purple), var(--neon_purple_secondary));
+
+
+    --neon_blue: #0040fe;
+    --neon_blue_secondary: #00c5ff;
+    --blue_gradient: linear-gradient(45deg, var(--neon_blue), var(--neon_blue_secondary));
+    --wk_blue_gradient: -webkit-linear-gradient(var(--neon_blue), var(--neon_blue_secondary));
+
+    --gray: #272727;
+    --neon_rainbow: linear-gradient(45deg, var(--neon_red), var(--neon_orange), var(--neon_yellow), var(--neon_green), var(--neon_blue), var(--neon_purple), var(--neon_purple_secondary), var(--neon_red));
+}
+
+.icon-mask {
+    mask-size: 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    width: 24px;
+    height: 24px;
+}
+
+
+
+
+.bg-pride {
+    background: var(--neon_rainbow);
+}
+
+.bg-test {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.btn-glow {
+    color: #FFF;
+    background: none;
+    font-size: 1rem;
+    padding: .5rem 1rem;
+}
+
+.btn-glow[disabled] {
+    background: none !important;
+    border-image-source: linear-gradient(45deg, #000, #272727) !important;
+    transition: all 1s ease-in-out !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.border-gradient {
+    border-image-slice: 1;
+}
+
+
+.btn-glow-green {
+    border-image-source: var(--green_gradient) !important;
+    background: var(--neon_green_transparent);
+    transition: all 1s ease-in-out !important;
+}
+
+.btn-glow-red {
+    border-image-source: var(--red_gradient) !important;
+    background: var(--neon_red_transparent);
+    transition: all 1s ease-in-out !important;
+}
+
+.btn-glow-yellow {
+    border-image-source: var(--yellow_gradient) !important;
+    background: var(--neon_yellow_transparent);
+    transition: all 1s ease-in-out !important;
+}
+
+
+.btn-glow-green:hover {
+    color: black;
+    background: var(--green_gradient) !important;
+    transition: all 1s ease-in-out !important;
+}
+
+
+.btn-glow-red:hover {
+    color: black;
+    background: var(--red_gradient) !important;
+    transition: all 1s ease-in-out !important;
+}
+
+.btn-glow-yellow:hover {
+    color: black;
+    background: var(--yellow_gradient) !important;
+    transition: all 1s ease-in-out !important;
+}

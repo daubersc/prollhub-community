@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "login": "Login",
+    "register": "Register",
+    "about": "About"
+  },
+  "input": {
+    "email": {
+      "label": "Email",
+      "description": "Please provide an valid email address"
+    },
+    "password": {
+      "label": "Password",
+      "description": "Please provide a legit password"
+    },
+    "username": {
+      "label": "Username",
+      "description": "Please provide your desired username."
+    },
+    "token": {
+      "label": "Token",
+      "description": "The community is per invite only. Please provide an valid access token."
+    },
+    "rememberMe":{
+      "label": "Keep me logged in"
+    }
+  },
+  "about": {
+    "title": "About ProllHub",
+    "description": "Welcome to ProllHub, a dedicated space designed for kinkfluencers to connect, share and explore their kinks. Platform offers a comprehensive suite of tools to enhance your community experience.",
+    "features": [
+      "**Content Management**: Easily generate your content captions and hashtags.",
+      "**Events**: Create, share and discover kinky events all over the globe",
+      "**Profile Hub**: Build your unique profile as a central place to showcase your content and preferences."
+    ],
+    "actions": {
+      "section": "Already have an account?",
+      "login": "Login Now",
+      "register": "Create Account"
+    }
+  },
+  "login": {
+    "title": "Log me in",
+    "actions": {
+      "login": "Log In",
+      "link": "Send me a magic link"
+    }
+  },
+  "register": {
+    "title": "Create an account",
+    "description": "Join the community by creating your account",
+    "actions": {
+      "register": "Create Account"
+    }
+  },
+  "errors": {
+    "field_required": "This field is required to have an non-empty value",
+    "invalid_password": "Password must be 8-100 characters long and include at least one lowercase letter, one uppercase letter, one digit, and one special character (e.g., !@#$%^&*).",
+    "invalid_email":"Please provide a valid email address.",
+    "invalid_username": "The username is of invalid format.",
+    "user_exists": "The user already exists.",
+    "unknown_error": "The service is currently not available."
+  },
+  "button": {
+    "state": {
+      "loading": "Loading"
+    }
+  }
+}
