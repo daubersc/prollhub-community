@@ -18,7 +18,7 @@ export const validateUsername = async (value: string): Promise<string | null> =>
     if (!(USERNAME_REGEX.test(value))) return 'invalid_username';
 
     try {
-        const response = await apiClient.get(`/username?${value}`)
+        const response = await apiClient.get(`?username=${value}`)
         return (response?.status == 200) ? 'user_exists' : null;
     } catch (e: any) {
         if (axios.isAxiosError(e) && e.response?.status == 404) return null;
@@ -32,7 +32,7 @@ export const validateEmail = async (value: string): Promise<string | null> => {
     if (!EMAIL_REGEX.test(value)) return 'invalid_email';
 
     try {
-        const response = await apiClient.get(`/email?${value}`)
+        const response = await apiClient.get(`?email=${value}`)
         return (response?.status == 200) ? 'email_exists' : null;
     } catch (e: any) {
         if (axios.isAxiosError(e) && e.response?.status == 404) return null;

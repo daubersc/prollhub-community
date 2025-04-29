@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/", "/admin/**").hasRole("ADMIN") // todo consider necessity
                         .requestMatchers("/account").authenticated() // account management
                         .requestMatchers("/community").authenticated() // not yet existent in v1
-
+                        .requestMatchers("/api/validate/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll() // Public APIs
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin APIs
 

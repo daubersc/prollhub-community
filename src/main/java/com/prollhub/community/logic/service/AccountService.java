@@ -34,4 +34,5 @@ public interface AccountService {
      */
     Optional<Account> findById(UUID id);
 
+    Optional<Account> findByEmail(String email);
 }
