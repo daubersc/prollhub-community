@@ -86,5 +86,11 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Account> findByEmail(String email) {
+        return accountRepository.findByEmail(email);
+    }
+
     // Implement other methods (delete, update) here
 }
