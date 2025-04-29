@@ -19,6 +19,8 @@ target/
 *.iml
 *.ipr
 
+**/node_modules
+
 ### security
 *.yaml
 *.yml
@@ -36,3 +38,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/frontend/index/node_modules/
