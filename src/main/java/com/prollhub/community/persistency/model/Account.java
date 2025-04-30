@@ -2,6 +2,8 @@ package com.prollhub.community.persistency.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +24,7 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "BINARY(16)")
+    @JdbcTypeCode(SqlTypes.BINARY)
     private UUID id;
 
     @Column(nullable = false, unique = true)

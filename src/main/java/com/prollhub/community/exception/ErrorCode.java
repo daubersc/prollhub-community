@@ -54,6 +54,11 @@ public enum ErrorCode {
     USERNAME_TAKEN(HttpStatus.CONFLICT, "The username {} is already taken."),
     EMAIL_TAKEN(HttpStatus.CONFLICT, "The email {} is already taken"),
 
+    // 424 Failed Dependency
+    FAILED_DEPENDENCY(HttpStatus.FAILED_DEPENDENCY, "The request failed due to a dependency failure."),
+    MAIL_SERVER_NOT_AVAILABLE(HttpStatus.FAILED_DEPENDENCY, "The mail server is not available, please try again later."),
+    DB_SERVER_NOT_AVAILABLE(HttpStatus.FAILED_DEPENDENCY, "The database server is not available, please try again later."),
+
     // 500 - generic
     INTERNAL_SERVER_ERROR( HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
 

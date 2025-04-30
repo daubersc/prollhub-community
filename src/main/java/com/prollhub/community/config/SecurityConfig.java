@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,6 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/static/**", "/css/**", "/js/**", "/manifest.json", "/favicon.ico").permitAll()
                         .requestMatchers("/", "/index", "/api/auth/login", "/api/auth/register", "/api/auth/magic-link").permitAll()
@@ -48,12 +50,7 @@ public class SecurityConfig {
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/index")
-                        .loginProcessingUrl("/api/auth/login")
-                        .defaultSuccessUrl("/dashboard")
-                        .failureUrl("/index?error=true")
-                        .permitAll()) // Keep default form login for now
+                .formLogin(AbstractHttpConfigurer::disable) // Keep default form login for now
                 .logout(logout -> logout
                         .logoutSuccessUrl("/index")
                         .logoutSuccessUrl("/index?logout=true")

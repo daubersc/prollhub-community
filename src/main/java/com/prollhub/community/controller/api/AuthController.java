@@ -10,6 +10,7 @@ import com.prollhub.community.exception.DuplicateUsernameException;
 import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
 import com.prollhub.community.logic.service.AccountService;
+import com.prollhub.community.logic.service.EmailService;
 import com.prollhub.community.persistency.model.Account;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,7 +26,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +38,25 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
+    private final EmailService emailService;
+
+    @PostMapping("/magic-link")
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody LoginRequest loginRequest) {
+        log.info("Sending verification email to {}", loginRequest.getEmail());
+        ErrorCode code;
+
+        Account account = accountService.findByEmail(loginRequest.getEmail()).orElse(null);
+        assert account != null;
+        try {
+            emailService.sendVerificationEmail(new UserInfoDTO(account), "123456");
+        } catch (Exception e) {
+            log.error("Failed to send verification email to {} due to {}", loginRequest.getEmail(), e.getMessage());
+            code = ErrorCode.MAIL_SERVER_NOT_AVAILABLE;
+            return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
+        }
+
+        return ResponseEntity.ok("Verification email sent to " + loginRequest.getEmail());
+    }
 
     /**
      * Handles user login reuqests via REST API.
@@ -46,14 +65,14 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        log.info("Attempted login for user {}.", loginRequest.getUsername());
+        log.info("Attempted login for user {}.", loginRequest.getEmail());
 
         ErrorCode code;
         ErrorResponse err;
 
         try {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(),
+                    loginRequest.getEmail(),
                     loginRequest.getPassword()
             );
 
@@ -75,16 +94,16 @@ public class AuthController {
 
         } catch (BadCredentialsException e) {
             // Handle incorrect username/password specifically
-            log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getUsername());
+            log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getEmail());
             code = ErrorCode.BAD_CREDENTIALS;
 
         } catch (AuthenticationException e) {
             // Handle other authentication errors (e.g., account locked, disabled)
-            log.error("Authentication failed for user '{}': {}", loginRequest.getUsername(), e.getMessage());
+            log.error("Authentication failed for user '{}': {}", loginRequest.getEmail(), e.getMessage());
             code = ErrorCode.LOCKED;
         } catch (Exception e) {
             // Catch unexpected errors
-            log.error("An unexpected error occurred during login for user '{}': {}", loginRequest.getUsername(), e.getMessage(), e);
+            log.error("An unexpected error occurred during login for user '{}': {}", loginRequest.getEmail(), e.getMessage(), e);
             code = ErrorCode.INTERNAL_SERVER_ERROR;
         }
 

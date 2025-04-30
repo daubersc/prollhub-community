@@ -39,6 +39,7 @@ public class ValidateController {
     private final AccountService accountService;
 
 
+
     /**
      * Retrieves details of the currently authenticated user. Requires authentication.
      * @return ResponseEntity containing user details or an error if not authenticated.
@@ -61,5 +62,6 @@ public class ValidateController {
 
         return exists ? ResponseEntity.ok("") : ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
     }
+
 
 }
