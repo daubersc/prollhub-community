@@ -14,7 +14,7 @@ public enum ErrorCode {
     The server cannot or will not process the request due to something that is perceived to be a client error
     (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
      */
-    FORMAT_ERROR( HttpStatus.BAD_REQUEST, "Format error in path {}."),
+    FORMAT_ERROR( HttpStatus.BAD_REQUEST, "Format error in parameters:"),
     VALIDATION_ERROR( HttpStatus.BAD_REQUEST, "The request failed due to input validation."),
 
     /*
@@ -53,8 +53,8 @@ public enum ErrorCode {
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "The requested method is not allowed for this resource"),
 
     // 409 Conflict
-    USERNAME_TAKEN(HttpStatus.CONFLICT, "The username {} is already taken."),
-    EMAIL_TAKEN(HttpStatus.CONFLICT, "The email {} is already taken"),
+    USERNAME_TAKEN(HttpStatus.CONFLICT, "The username is already taken."),
+    EMAIL_TAKEN(HttpStatus.CONFLICT, "The email is already taken"),
 
     // 410 Gone
     TOKEN_EXPIRED(HttpStatus.GONE, "The token has expired."),

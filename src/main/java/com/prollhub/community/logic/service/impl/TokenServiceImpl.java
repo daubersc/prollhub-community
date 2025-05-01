@@ -1,8 +1,8 @@
 package com.prollhub.community.logic.service.impl;
 
-import com.prollhub.community.exception.AccountDisabledException;
-import com.prollhub.community.exception.TokenExpiredException;
-import com.prollhub.community.exception.TokenNotFoundException;
+import com.prollhub.community.exception.exceptions.AccountDisabledException;
+import com.prollhub.community.exception.exceptions.TokenExpiredException;
+import com.prollhub.community.exception.exceptions.TokenNotFoundException;
 import com.prollhub.community.logic.service.TokenService;
 import com.prollhub.community.persistency.model.Account;
 import com.prollhub.community.persistency.model.InviteToken;

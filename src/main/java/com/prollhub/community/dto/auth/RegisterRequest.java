@@ -9,19 +9,24 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "USERNAME_REQUIRED")
+    @Size(min = 3, max = 50, message = "USERNAME_LENGTH_INVALID")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "USERNAME_FORMAT_INVALID")
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    @Size(max = 100, message = "Email must not exceed 100 characters")
+    @NotBlank(message = "EMAIL_REQUIRED")
+    @Email(message = "EMAIL_LENGTH_INVALID")
+    @Size(max = 100, message = "EMAIL_FORMAT_INVALID")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    @NotBlank(message = "TOKEN_REQUIRED")
+    @Size(min=36, max=36, message = "TOKEN_FORMAT_INVALID")
+    private String token;
+
+    @NotBlank(message = "PASSWORD_REQUIRED")
+    @Size(min = 8, max = 100, message = "PASSWORD_LENGTH_INVALID")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~])[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?~]+$",
-            message = "Password must be 8-100 characters long and include at least one lowercase letter, one uppercase letter, one digit, and one special character (!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~)")
+            message = "PASSWORD_FORMAT_INVALID")
     private String password;
 
 }

@@ -1,7 +1,7 @@
 package com.prollhub.community.logic.service.impl;
 
 import com.prollhub.community.dto.auth.UserInfoDTO;
-import com.prollhub.community.exception.MailServerNotAvailableException;
+import com.prollhub.community.exception.exceptions.MailServerNotAvailableException;
 import com.prollhub.community.logic.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

@@ -1,31 +1,13 @@
 package com.prollhub.community.controller.api;
 
-import com.prollhub.community.dto.SuccessResponse;
-import com.prollhub.community.dto.WarningResponse;
-import com.prollhub.community.dto.auth.LoginRequest;
-import com.prollhub.community.dto.auth.RegisterRequest;
-import com.prollhub.community.dto.auth.UserInfoDTO;
-import com.prollhub.community.exception.DuplicateEmailException;
-import com.prollhub.community.exception.DuplicateUsernameException;
 import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
 import com.prollhub.community.logic.service.AccountService;
-import com.prollhub.community.persistency.model.Account;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

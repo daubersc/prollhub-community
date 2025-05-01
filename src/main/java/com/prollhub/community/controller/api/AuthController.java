@@ -5,8 +5,8 @@ import com.prollhub.community.dto.WarningResponse;
 import com.prollhub.community.dto.auth.LoginRequest;
 import com.prollhub.community.dto.auth.RegisterRequest;
 import com.prollhub.community.dto.auth.UserInfoDTO;
-import com.prollhub.community.exception.DuplicateEmailException;
-import com.prollhub.community.exception.DuplicateUsernameException;
+import com.prollhub.community.exception.exceptions.DuplicateEmailException;
+import com.prollhub.community.exception.exceptions.DuplicateUsernameException;
 import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
 import com.prollhub.community.logic.service.AccountService;
@@ -14,7 +14,6 @@ import com.prollhub.community.logic.service.EmailService;
 import com.prollhub.community.logic.service.MagicLinkService;
 import com.prollhub.community.logic.service.TokenService;
 import com.prollhub.community.persistency.model.Account;
-import com.prollhub.community.persistency.model.MagicLinkToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -33,7 +32,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Locale;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -161,7 +159,7 @@ public class AuthController {
             WarningResponse<Void> response = new WarningResponse<>(
                     HttpStatus.CREATED,
                     "VERIFICATION_REQUIRED",
-                    "User registered successfully but needs email verification to be enabbled",
+                    "User registered successfully but needs email verification to be enabled",
                     null);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

@@ -1,4 +1,4 @@
-package com.prollhub.community.exception;
+package com.prollhub.community.exception.exceptions;
 
 public class AccountDisabledException extends IllegalStateException {
     public AccountDisabledException(String message) {

@@ -1,7 +1,8 @@
 package com.prollhub.community.logic.service.impl;
 
 import com.prollhub.community.dto.auth.RegisterRequest;
-import com.prollhub.community.exception.DuplicateUsernameException;
+import com.prollhub.community.exception.exceptions.DuplicateEmailException;
+import com.prollhub.community.exception.exceptions.DuplicateUsernameException;
 import com.prollhub.community.logic.service.AccountService;
 import com.prollhub.community.persistency.model.Account;
 import com.prollhub.community.persistency.repository.AccountRepository;
@@ -51,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
         // Check if email already exists
         if (accountRepository.existsByEmail(registerRequest.getEmail())) {
             log.warn("Registration failed: Email '{}' already exists.", registerRequest.getEmail());
-            throw new DuplicateUsernameException("Email Address already in use!");
+            throw new DuplicateEmailException("Email Address already in use!");
         }
 
         // --- Create new account ---
