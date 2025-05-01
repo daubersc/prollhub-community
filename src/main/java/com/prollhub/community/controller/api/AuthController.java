@@ -73,19 +73,30 @@ public class AuthController {
      * @return the expected loginResponse entity
      */
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         log.info("Attempted login for user {}.", loginRequest.getEmail());
-
         ErrorCode code;
         ErrorResponse err;
 
+        // We need to retrieve the account's username in order to login
+        Account acc = accountService.findByEmail(loginRequest.getEmail()).orElse(null);
+
+        // Check for existence
+        if (acc == null) {
+            log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getEmail());
+            code = ErrorCode.BAD_CREDENTIALS;
+            err = new ErrorResponse(code);
+            return ResponseEntity.status(code.getHttpStatus()).body(err);
+        }
+
+
         try {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
+            UsernamePasswordAuthenticationToken passwordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                    acc.getUsername(),
                     loginRequest.getPassword()
             );
 
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+            Authentication authentication = authenticationManager.authenticate(passwordAuthenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             Object principal = authentication.getPrincipal();
 
