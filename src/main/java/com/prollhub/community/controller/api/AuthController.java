@@ -9,11 +9,14 @@ import com.prollhub.community.exception.exceptions.DuplicateEmailException;
 import com.prollhub.community.exception.exceptions.DuplicateUsernameException;
 import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
+import com.prollhub.community.exception.exceptions.TokenExpiredException;
+import com.prollhub.community.exception.exceptions.TokenNotFoundException;
 import com.prollhub.community.logic.service.AccountService;
 import com.prollhub.community.logic.service.EmailService;
 import com.prollhub.community.logic.service.MagicLinkService;
 import com.prollhub.community.logic.service.TokenService;
 import com.prollhub.community.persistency.model.Account;
+import com.prollhub.community.persistency.model.InviteToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -126,6 +129,22 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, Locale locale) {
         log.info("Received registration request for username: {}", request.getUsername());
         ErrorCode code = null;
+
+        try {
+            tokenService.isValidInviteToken(request.getToken());
+        } catch (TokenNotFoundException e) {
+            log.warn("Registration failed for non-existing token {}", request.getToken());
+            code = ErrorCode.TOKEN_INVALID;
+        } catch (TokenExpiredException e) {
+            code = ErrorCode.TOKEN_EXPIRED;
+        }
+
+        // Token valid?
+        if (code != null) {
+            ErrorResponse errorResponse = new ErrorResponse(code);
+            return ResponseEntity.status(code.getHttpStatus()).body(errorResponse);
+        }
+
         Account registeredAccount = null;
 
         try {
@@ -170,6 +189,8 @@ public class AuthController {
 
             SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(HttpStatus.CREATED, new UserInfoDTO(registeredAccount));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } finally {
+            tokenService.deleteInviteToken(request.getToken());
         }
 
 

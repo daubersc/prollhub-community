@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "token")
 @ToString(exclude = {"account"})
 @Entity
 @Table(name= "verification_tokens")

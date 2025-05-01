@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "token")
 @ToString(exclude = {"account"})
 @Entity
 @Table(name= "magic_link_tokens")

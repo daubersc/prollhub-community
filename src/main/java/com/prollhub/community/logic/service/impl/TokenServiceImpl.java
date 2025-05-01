@@ -20,9 +20,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
 
-    private InviteTokenRepository inviteTokenRepository;
-    private MagicLinkTokenRepository magicLinkTokenRepository;
-    private VerificationTokenRepository verificationTokenRepository;
+    private final InviteTokenRepository inviteTokenRepository;
+    private final MagicLinkTokenRepository magicLinkTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     private String createRandomUUID() {
         return UUID.randomUUID().toString();
@@ -39,13 +39,11 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public InviteToken getInviteToken(String token) {
+    public void isValidInviteToken(String token) {
         InviteToken inviteToken = inviteTokenRepository.findByToken(token).orElseThrow(() -> new TokenNotFoundException("Token not found"));
         if (inviteToken.getExpires().isBefore(java.time.Instant.now())) {
             throw new TokenExpiredException("Token expired");
         }
-
-        return inviteToken;
     }
 
     @Override

@@ -22,7 +22,7 @@ public interface TokenService {
      * @param token The token's UUID
      * @return the Invite Token
      */
-    InviteToken getInviteToken(String token);
+    void isValidInviteToken(String token);
 
     /**
      * Eventually deletes an inviteToken

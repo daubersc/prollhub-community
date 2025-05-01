@@ -10,8 +10,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id")
-@ToString(exclude = {"account"})
+@EqualsAndHashCode(of = "token")
+@ToString()
 @Entity
 @Table(name= "magic_link_tokens")
 public class InviteToken {
