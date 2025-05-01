@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Email Subject</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .header {
+            background-color: #f2f2f2;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+            text-align: center;
+            color: #888;
+        }
+        a {
+            color: #0000ff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2 th:text="${title}">Verify your E-Mail</h2>
+    </div>
+    <div class="content">
+        <p>Hi <strong th:text="${name}">User</strong>,</p>
+
+        <p th:text="${welcome}?:null"></p>
+
+        <p th:text="${description}">To complete your registration and secure your account please verify your email by clicking the link below:</p>
+
+        <a th:href="${url}" th:text="${link}">Fallback Link Text</a>
+
+        <p><span th:text="${support}">If you have any questions, please contact us at </span><a href="mailto:info@prollhub.com">info@prollhub.com</a></p>
+        <p>
+            <span th:text="${greetings}">Thanks,</span><br/><span th:text="${signature}">The Prollhub Team</span>
+        </p>
+
+
+
+
+        <div style="background-color: #b8b8b8; padding: 10px; border-radius: 5px; margin-top: 5px; border: 1px solid #3e3e3e; font-size: small">
+            <span th:text="${fallback}">If your link does not work, please copy and paste the following link into your browser:</span>
+            <span th:text="${url}">https://prollhub.com/verify-email?code=</span>
+            <br/>
+            <span th:text="${security}">If you did not request this verification, please ignore this email.</span>
+            <span th:text="${expiration}">This verification link will be valid for the next 24 hours. Upon expiration you need to register anew.</span>
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> Prollhub.com</p>
+    </div>
+</div>
+</body>
+</html>

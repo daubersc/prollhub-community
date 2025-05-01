@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+// Maps requests to "/", "/index", or specific routes you want to serve the SPA from
+    @GetMapping(value = {"/", "/index", "/login-failed"}) // Example routes
+    public String serveSpaIndex(
+            // Example: Capture potential error from query param (if this controller handles the error display route)
+            @RequestParam(name = "error", required = false) String errorCode,
+            Model model) {
+
+        // --- Add data to the Spring Model ---
+
+        // 1. Add the error code if present (e.g., from query param)
+        if (errorCode != null && !errorCode.isEmpty()) {
+            model.addAttribute("initialError", errorCode); // This maps to [[${initialError}]]
+        } else {
+            model.addAttribute("initialError", null); // Ensure it's explicitly null if no error
+        }
+
+        // 2. Add other potential initial data
+        // Example: Check authentication status (replace with your actual security check)
+        boolean isAuthenticated = checkUserAuthentication(); // Your logic here
+        model.addAttribute("isAuthenticated", isAuthenticated); // Maps to [[${isAuthenticated}]]
+
+        // Example: Add user data if authenticated (as a JSON string)
+        if (isAuthenticated) {
+            try {
+                Map<String, Object> userData = Map.of("username", "user123", "role", "ADMIN"); // Get actual user data
+                String userDataJson = objectMapper.writeValueAsString(userData);
+                model.addAttribute("initialDataJson", userDataJson); // Maps to [[${initialDataJson}]]
+            } catch (JsonProcessingException e) {
+                // Handle JSON processing error - maybe log it
+                model.addAttribute("initialDataJson", null); // Set to null on error
+                 System.err.println("Error serializing user data to JSON: " + e.getMessage());
+            }
+        } else {
+             model.addAttribute("initialDataJson", null);
+        }
+
+
+        // --- Return the logical view name ---
+        // This tells Spring to process "src/main/resources/templates/index.html" with Thymeleaf
+        return "index";
+    }
+
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My React App</title>
+  <link rel="stylesheet" th:href="@{/static/css/main.css}"> <script th:inline="javascript">
+  /*<![CDATA[*/ // Use CDATA wrapper for robustness
+
+  // Embed data added to the Spring Model by the controller
+  // Handles nulls gracefully - window.__INITIAL_ERROR__ will be null if not set in model
+  window.__INITIAL_ERROR__ = /*[[${initialError}]]*/ null;
+
+  // For complex objects, pass them as JSON strings from the controller
+  // and parse them here, or embed directly if simple enough.
+  // Example: Passing a JSON string for user data
+  const initialDataJson = /*[[${initialDataJson}]]*/ null;
+  window.__INITIAL_DATA__ = initialDataJson ? JSON.parse(initialDataJson) : null;
+
+  // Example: Passing a simple boolean flag
+  window.__IS_AUTHENTICATED__ = /*[[${isAuthenticated}]]*/ false;
+
+  /*]]>*/
+</script>
+
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div> <script type="text/javascript" th:src="@{/static/js/bundle.js}"></script> </body>
+</html>

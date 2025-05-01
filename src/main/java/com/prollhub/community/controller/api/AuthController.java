@@ -11,7 +11,10 @@ import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
 import com.prollhub.community.logic.service.AccountService;
 import com.prollhub.community.logic.service.EmailService;
+import com.prollhub.community.logic.service.MagicLinkService;
+import com.prollhub.community.logic.service.TokenService;
 import com.prollhub.community.persistency.model.Account;
+import com.prollhub.community.persistency.model.MagicLinkToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -29,6 +32,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -39,23 +45,25 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
     private final EmailService emailService;
+    private final TokenService tokenService;
+    private final MagicLinkService magicLinkService;
 
     @PostMapping("/magic-link")
-    public ResponseEntity<?> sendVerificationEmail(@RequestBody LoginRequest loginRequest) {
-        log.info("Sending verification email to {}", loginRequest.getEmail());
-        ErrorCode code;
+    public ResponseEntity<?> sendMagicLink(@RequestBody LoginRequest loginRequest, Locale locale) {
 
-        Account account = accountService.findByEmail(loginRequest.getEmail()).orElse(null);
-        assert account != null;
-        try {
-            emailService.sendVerificationEmail(new UserInfoDTO(account), "123456");
-        } catch (Exception e) {
-            log.error("Failed to send verification email to {} due to {}", loginRequest.getEmail(), e.getMessage());
-            code = ErrorCode.MAIL_SERVER_NOT_AVAILABLE;
-            return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
-        }
+       try {
+           magicLinkService.processMagicLinkRequest(loginRequest.getEmail(), locale);
+       } catch (Exception ignoreMe) { }
 
-        return ResponseEntity.ok("Verification email sent to " + loginRequest.getEmail());
+
+        // We don't want to give out the information whether the email address exists or not
+        WarningResponse<Void> response = new WarningResponse<>(
+                HttpStatus.ACCEPTED,
+                "MAIL_PENDING",
+                "An email is sent if the email exists in the systems.", null);
+
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
     /**
@@ -117,18 +125,15 @@ public class AuthController {
      * @return ResponseEntity indicating success or failure.
      */
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request, Locale locale) {
         log.info("Received registration request for username: {}", request.getUsername());
-        ErrorCode code;
+        ErrorCode code = null;
+        Account registeredAccount = null;
 
         try {
 
-            Account registeredAccount = accountService.registerNewAccount(request);
+            registeredAccount = accountService.registerNewAccount(request);
 
-            SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(HttpStatus.CREATED, new UserInfoDTO(registeredAccount));
-
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully! Username: " + registeredAccount.getUsername());
         } catch (DuplicateUsernameException e) {
             log.warn("Registration failed for duplicated username {}", request.getUsername());
             code = ErrorCode.USERNAME_TAKEN;
@@ -143,8 +148,38 @@ public class AuthController {
             code = ErrorCode.INTERNAL_SERVER_ERROR;
         }
 
-        ErrorResponse errorResponse = new ErrorResponse(code);
-        return ResponseEntity.status(code.getHttpStatus()).body(errorResponse);
+        // Registering worked ?
+        if (code != null) {
+            ErrorResponse errorResponse = new ErrorResponse(code);
+            return ResponseEntity.status(code.getHttpStatus()).body(errorResponse);
+        }
+
+        String token = tokenService.createVerificationToken(registeredAccount);
+
+        try {
+            emailService.sendTemplateEmail(new UserInfoDTO(registeredAccount), EmailService.TemplateType.VERIFY_EMAIL, locale.getLanguage(), token, true);
+            WarningResponse<Void> response = new WarningResponse<>(
+                    HttpStatus.CREATED,
+                    "VERIFICATION_REQUIRED",
+                    "User registered successfully but needs email verification to be enabbled",
+                    null);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            // Skip in case of exception - this is some server issue then (todo evaluate if this can be more granular)
+            accountService.activateAccount(registeredAccount);
+            tokenService.deleteVerificationToken(token);
+
+            SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(HttpStatus.CREATED, new UserInfoDTO(registeredAccount));
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+
+
+
+
+
+
+
     }
 
     /**

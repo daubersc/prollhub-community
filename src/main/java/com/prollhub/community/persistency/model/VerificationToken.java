@@ -16,7 +16,7 @@ import java.time.Instant;
 @Table(name= "verification_tokens")
 public class VerificationToken {
 
-    private static final Duration EXPIRY_DURATION = Duration.ofMinutes(15);
+    private static final Duration EXPIRY_DURATION = Duration.ofDays(1);
 
     @Id
     @Column(nullable = false, length = 36)

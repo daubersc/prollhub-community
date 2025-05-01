@@ -22,7 +22,7 @@ public enum ErrorCode {
     Although the HTTP standard specifies "unauthorized", semantically this response means "unauthenticated". That is,
     the client must authenticate itself to get the requested response.
      */
-    BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid username or password provided"),
+    BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid user credentials provided."),
     LOCKED(HttpStatus.UNAUTHORIZED, "Your account is currently disabled"),
     UNAUTHORIZED( HttpStatus.UNAUTHORIZED, "You need to login to access this resource"),
 
@@ -42,6 +42,8 @@ public enum ErrorCode {
     response instead of 403 Forbidden to hide the existence of a resource from an unauthorized client. This response
     code is probably the most well known due to its frequent occurrence on the web.
      */
+    TOKEN_INVALID(HttpStatus.NOT_FOUND, "The token provided is invalid"),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "The requested resource was not found"),
 
     /*
     405 - Method not allowed
@@ -53,6 +55,9 @@ public enum ErrorCode {
     // 409 Conflict
     USERNAME_TAKEN(HttpStatus.CONFLICT, "The username {} is already taken."),
     EMAIL_TAKEN(HttpStatus.CONFLICT, "The email {} is already taken"),
+
+    // 410 Gone
+    TOKEN_EXPIRED(HttpStatus.GONE, "The token has expired."),
 
     // 424 Failed Dependency
     FAILED_DEPENDENCY(HttpStatus.FAILED_DEPENDENCY, "The request failed due to a dependency failure."),

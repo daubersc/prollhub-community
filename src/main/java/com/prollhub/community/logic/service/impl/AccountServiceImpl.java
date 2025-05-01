@@ -30,6 +30,12 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordEncoder passwordEncoder; // Inject the password encoder
 
     @Override
+    public void activateAccount(Account account) {
+        account.setEnabled(true);
+        accountRepository.save(account);
+    }
+
+    @Override
     @Transactional // Ensure the operation is atomic
     public Account registerNewAccount(RegisterRequest registerRequest) {
         log.info("Attempting to register new account for username: {}", registerRequest.getUsername());
@@ -53,8 +59,10 @@ public class AccountServiceImpl implements AccountService {
         account.setUsername(registerRequest.getUsername());
         account.setEmail(registerRequest.getEmail());
 
+
         // Hash the password before saving
         account.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
 
         // Assign default roles (e.g., "USER")
         // Roles should be stored without the "ROLE_" prefix in the Set if the
@@ -64,7 +72,7 @@ public class AccountServiceImpl implements AccountService {
         account.setRoles(defaultRoles);
 
         // Set default status flags (enabled=true, etc.) - these are defaults in Account entity
-        // account.setEnabled(true); // Already defaulted in entity
+        account.setEnabled(false);
 
         // --- Save account ---
         Account savedAccount = accountRepository.save(account);

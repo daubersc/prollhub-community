@@ -18,6 +18,8 @@ public interface AccountService {
      */
     Account registerNewAccount(RegisterRequest registerRequest);
 
+    public void activateAccount(Account account);
+
     /**
      * Finds an account by its username.
      *
