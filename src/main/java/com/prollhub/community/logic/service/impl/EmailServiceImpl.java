@@ -109,7 +109,7 @@ public class EmailServiceImpl implements EmailService {
             case VERIFY_EMAIL -> {
                 url += "verify-email?token=" + code;
                 if (localization.equalsIgnoreCase("de")) {
-                    rb.put("title", "Bestätige Deine E-Mail Adresse.");
+                    rb.put("title", "Bestätige Deine E-Mail Adresse");
 
                     if (isNewAccount) {
                         rb.put("welcome", "Willkommen bei Prollhub!");
@@ -147,6 +147,28 @@ public class EmailServiceImpl implements EmailService {
                     rb.put("email", "info@prollhub.com");
                     rb.put("greetings", "Thanks,");
                     rb.put("signature", "The Prollhub Team");
+                }
+            }
+            case ACCOUNT_LOCKED -> {
+                url = null;
+                if (localization.equalsIgnoreCase("de")) {
+                    rb.put("title", "Account gesperrt");
+                    rb.put("description", "Jemand hat auf dein Konto 5 erfolglose Loginversuche unternommen. Aus Sicherheitsgründen wurde daher dein Login für eine Stunde gesperrt.");
+                    rb.put("security", "Falls Du Dein Passwort vergessen hast, verwende bitte die Magic Link Funktion, um Dich einzuloggen und dein Passwort zurückzusetzen.");
+                    rb.put("support", "Benötigst Du Hilfe? Kontaktiere uns unter: ");
+                    rb.put("email", "info@prollhub.com");
+                    rb.put("greetings", "Danke,");
+                    rb.put("signature", "Das Prollhub Team");
+
+                } else {
+                    rb.put("title", "Account locked");
+                    rb.put("description", "Someone has attempted 5 failed login attempts on your account. Therefore your login has been temporarily locked for one hour.");
+                    rb.put("security", "In case you forgot your password, please use the Magic Link function to login and to change your password.");
+                    rb.put("support", "Need help? Contact us at ");
+                    rb.put("email", "info@prollhub.com");
+                    rb.put("greetings", "Thanks,");
+                    rb.put("signature", "The Prollhub Team");
+
                 }
             }
             default -> throw new IllegalArgumentException("Invalid template type: " + type);

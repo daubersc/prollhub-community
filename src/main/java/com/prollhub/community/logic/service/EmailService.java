@@ -8,7 +8,8 @@ public interface EmailService {
 
     public enum TemplateType {
         VERIFY_EMAIL,
-        MAGIC_LINK
+        MAGIC_LINK,
+        ACCOUNT_LOCKED
     }
 
     public void send(String to, String subject, String content);

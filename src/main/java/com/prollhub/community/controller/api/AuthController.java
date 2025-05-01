@@ -11,10 +11,7 @@ import com.prollhub.community.exception.ErrorCode;
 import com.prollhub.community.exception.ErrorResponse;
 import com.prollhub.community.exception.exceptions.TokenExpiredException;
 import com.prollhub.community.exception.exceptions.TokenNotFoundException;
-import com.prollhub.community.logic.service.AccountService;
-import com.prollhub.community.logic.service.EmailService;
-import com.prollhub.community.logic.service.MagicLinkService;
-import com.prollhub.community.logic.service.TokenService;
+import com.prollhub.community.logic.service.*;
 import com.prollhub.community.persistency.model.Account;
 import com.prollhub.community.persistency.model.InviteToken;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +42,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
+    private final LoginAttemptService loginAttemptService;
     private final EmailService emailService;
     private final TokenService tokenService;
     private final MagicLinkService magicLinkService;
@@ -73,7 +71,7 @@ public class AuthController {
      * @return the expected loginResponse entity
      */
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, Locale locale) {
         log.info("Attempted login for user {}.", loginRequest.getEmail());
         ErrorCode code;
         ErrorResponse err;
@@ -82,11 +80,23 @@ public class AuthController {
         Account acc = accountService.findByEmail(loginRequest.getEmail()).orElse(null);
 
         // Check for existence
-        if (acc == null) {
+        if (acc == null || loginRequest.getPassword() == null) {
             log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getEmail());
             code = ErrorCode.BAD_CREDENTIALS;
-            err = new ErrorResponse(code);
-            return ResponseEntity.status(code.getHttpStatus()).body(err);
+            return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
+        }
+
+        // Too many attempts -> block login
+        if (loginAttemptService.isBlocked(loginRequest.getEmail())) {
+            emailService.sendTemplateEmail(new UserInfoDTO(acc), EmailService.TemplateType.ACCOUNT_LOCKED, locale.getLanguage(), null, false);
+            code = ErrorCode.LOCKED;
+            return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
+        }
+
+        // account disabled -> block login
+        if (!acc.isEnabled()) {
+            code = ErrorCode.LOCKED;
+            return ResponseEntity.status(code.getHttpStatus()).body(new ErrorResponse(code));
         }
 
 
@@ -115,6 +125,7 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             // Handle incorrect username/password specifically
             log.warn("Login failed for user '{}': Invalid credentials", loginRequest.getEmail());
+            loginAttemptService.loginFailed(loginRequest.getEmail());
             code = ErrorCode.BAD_CREDENTIALS;
 
         } catch (AuthenticationException e) {
