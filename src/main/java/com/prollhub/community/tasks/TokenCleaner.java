@@ -24,7 +24,7 @@ public class TokenCleaner {
     /**
      * This method runs every 6 Hours to delete expired tokens.
      */
-    @Scheduled(cron = "0 0 /6 * * ?")
+    @Scheduled(cron = "0 0 3 * * ?")
     @Transactional
     public void cleanupExpiredTokens() {
         Instant now = Instant.now();
