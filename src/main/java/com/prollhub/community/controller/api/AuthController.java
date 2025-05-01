@@ -117,6 +117,7 @@ public class AuthController {
             }
 
             log.info("User {} logged in successfully.", authenticatedAccount.getUsername());
+            loginAttemptService.loginSucceeded(loginRequest.getEmail());
             UserInfoDTO userInfoDTO = new UserInfoDTO(authenticatedAccount);
 
             SuccessResponse<UserInfoDTO> response = new SuccessResponse<>(userInfoDTO);
